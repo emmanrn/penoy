@@ -1,14 +1,19 @@
 # Pinoy Henyo
 
 ## For testing purposes
+> **_NOTE:_** make a new branch for testing
 ## Requirements
 #### Bun
 
 To install bun, paste this command in a terminal
-`powershell -c "irm bun.sh/install.ps1|iex"`
+```bash
+powershell -c "irm bun.sh/install.ps1|iex"
+```
 
 Then check to see if bun is installed
-`bun --version`
+```bash
+bun --version
+```
 
 #### Go
 To install Go, go to their [website](https://go.dev)
