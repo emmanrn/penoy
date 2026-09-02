@@ -1,6 +1,6 @@
 # Pinoy Henyo
 
-## For testing purposes
+### For testing purposes
 > **_NOTE:_** make a new branch for testing
 ## Requirements
 #### Bun
