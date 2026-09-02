@@ -18,8 +18,8 @@ bun --version
 #### Go
 To install Go, go to their [website](https://go.dev)
 
-Go to downloads page find your Operating System, the download installer
-PATH should also be updated already no manual updates needed. I think
+Go to downloads page, find your Operating System, if you download the windows installer, 
+should already update the PATH, no manual updates needed. I think
 
 Check to see if Go is installed
 `go version`
