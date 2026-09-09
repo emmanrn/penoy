@@ -181,6 +181,7 @@
 		word = null;
 		mode = null;
 		round_started = false;
+		window.history.pushState({}, '', '/');
 	}
 
 	function handleChooseRole(r: 'clue-giver' | 'guesser'): void {
