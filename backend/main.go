@@ -17,10 +17,10 @@ var upgrader = websocket.Upgrader{
 func main() {
 	http.HandleFunc("/ws", handleWs)
 
-	fs := http.FileServer(http.Dir("../frontend"))
+	fs := http.FileServer(http.Dir("../frontend/dist"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/room/") {
-			http.ServeFile(w, r, "../frontend/index.html")
+			http.ServeFile(w, r, "../frontend/dist/index.html")
 			return
 		}
 		fs.ServeHTTP(w, r)
