@@ -1,10 +1,14 @@
 package main
 
 import (
+	"math/rand"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
+
+const codeChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 type Player struct {
 	Conn      *websocket.Conn
@@ -29,8 +33,39 @@ var (
 	rooms   = map[string]*Room{} // list of all rooms in the server
 )
 
+func generateRoomCode() string {
+	var sb strings.Builder
+	for i := 0; i < 5; i++ {
+		sb.WriteByte(codeChars[rand.Intn(len(codeChars))])
+	}
+
+	return sb.String()
+}
+
+func createRoom(mode string) *Room {
+	roomsMu.Lock()
+	defer roomsMu.Unlock()
+
+	var code string
+	for {
+		code = generateRoomCode()
+		if _, exists := rooms[code]; !exists {
+			break
+		}
+	}
+
+	r := &Room{
+		Code:  code,
+		Mode:  mode,
+		Words: shuffleWords(),
+	}
+
+	rooms[code] = r
+	return r
+}
+
 // takes in 'mode' now to determine if its custom or random mode
-func getOrCreateRoom(code string, mode string) *Room {
+func joinRoom(code string) *Room {
 	// blocks other goroutines and only one goroutine may run
 	roomsMu.Lock()
 
@@ -42,14 +77,8 @@ func getOrCreateRoom(code string, mode string) *Room {
 		return r
 	}
 
-	r := &Room{
-		Code:  code,
-		Mode:  mode,
-		Words: shuffleWords(),
-	}
-
-	rooms[code] = r
-	return r
+	// no room is found
+	return nil
 }
 
 func (r *Room) broadcast(msg OutgoingMessage) {

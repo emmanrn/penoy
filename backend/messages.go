@@ -17,4 +17,5 @@ type OutgoingMessage struct {
 	Outcome        string   `json:"outcome,omitempty"`
 	ConfirmedRoles []string `json:"confirmedRoles,omitempty"` // roles already claimed
 	RoundEndsAt    int64    `json:"roundEndsAt,omitempty"`    // unix milliseconds
+	RoomCode       string   `json:"roomCode,omitempty"`       // sent back on room creation
 }
