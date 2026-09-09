@@ -40,6 +40,8 @@
 	let guessInput: string = '';
 	let guessCorrect: boolean = false;
 
+	let connected = false;
+
 	function beginCountdown(endsAtMs: number): void {
 		if (timerInterval) clearInterval(timerInterval);
 		timerInterval = startCountdown(endsAtMs, (secs) => {
@@ -60,6 +62,9 @@
 			case 'room_joined':
 				roomCode = msg.roomCode ?? null;
 				gameState = 'waiting';
+				if (roomCode) {
+					window.history.pushState({}, '', `/room/${roomCode}`);
+				}
 				break;
 			case 'room_not_found':
 				// show error message in landing page
@@ -91,11 +96,6 @@
 				role = msg.role ?? role;
 				stopCountdown();
 				break;
-			// case 'next_word':
-			// 	gameState = 'playing';
-			// 	word = null;
-			// 	round_started = false;
-			// 	break;
 			case 'opponent_left':
 				gameState = 'waiting';
 				word = null;
@@ -139,7 +139,13 @@
 	}
 
 	onMount(() => {
-		connect(handleMessage);
+		connect(handleMessage, () => {
+			connected = true;
+			const match = window.location.pathname.match(/^\/room\/([A-Za-z0-9]+)$/);
+			if (match) {
+				joinRoom(match[1]);
+			}
+		});
 	});
 
 	onDestroy(() => {

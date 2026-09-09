@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,10 +15,22 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	log.Println("loaded words:", len(wordList))
 	http.HandleFunc("/ws", handleWs)
-	fmt.Println("Go Websockets")
 
-	log.Println("listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fs := http.FileServer(http.Dir("../frontend"))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/room/") {
+			http.ServeFile(w, r, "../frontend/index.html")
+			return
+		}
+		fs.ServeHTTP(w, r)
+	})
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("listening on:" + port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

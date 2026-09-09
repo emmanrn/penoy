@@ -16,14 +16,24 @@ export type Mode = 'random' | 'custom';
 let socket: WebSocket | null = null;
 let messageHandler: ((msg: IncomingWSMessage) => void) | null = null;
 
+function getWsUrl(): string {
+	if (import.meta.env.PROD) {
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		return `${protocol}//${window.location.host}/ws`;
+	}
+
+	return 'ws://localhost:8080/ws';
+}
+
 // called once onMount of the application, so once a user opens the website, they automatically
 // connect to a websocket
-export function connect(onMessage: (msg: IncomingWSMessage) => void): void {
+export function connect(onMessage: (msg: IncomingWSMessage) => void, onOpen?: () => void): void {
 	messageHandler = onMessage;
-	socket = new WebSocket('ws://localhost:8080/ws');
+	socket = new WebSocket(getWsUrl());
 
 	socket.onopen = () => {
 		console.log('WS connected');
+		if (onOpen) onOpen();
 	};
 
 	// whenever the server sends a message
