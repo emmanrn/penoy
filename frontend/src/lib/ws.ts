@@ -7,6 +7,7 @@ export type IncomingWSMessage = {
 	outcome: string | null;
 	confirmedRoles: string[];
 	roundEndsAt?: number;
+	roomCode: string | null;
 };
 
 // room mode
@@ -49,9 +50,13 @@ function send(msg: Record<string, unknown>): void {
 	}
 }
 
+export function createRoom(mode: Mode): void {
+	send({ type: 'create_room', mode });
+}
+
 // functions used that sends the jsons to the server
-export function joinRoom(roomCode: string, mode: Mode | null): void {
-	send({ type: 'join_room', roomCode, mode });
+export function joinRoom(roomCode: string): void {
+	send({ type: 'join_room', roomCode });
 }
 
 export function leaveRoom(): void {

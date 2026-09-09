@@ -7,12 +7,14 @@
 		chooseWord,
 		confirmRole,
 		connect,
+		createRoom,
 		joinRoom,
 		leaveRoom,
 		nextWord,
 		sendGuess,
 		submitWord,
-		type IncomingWSMessage
+		type IncomingWSMessage,
+		type Mode
 	} from './lib/ws';
 	import Landing from './lib/components/Landing.svelte';
 	import Waiting from './lib/components/Waiting.svelte';
@@ -27,6 +29,7 @@
 	let mode: string | null = null;
 	let round_started: boolean = false;
 	let roomCodeInput: string = '';
+	let roomCode: string | null = null;
 	let customwordInput: string = '';
 	let confirmedRoles: string[] = [];
 	let myChosenRole: string | null = null;
@@ -55,7 +58,11 @@
 	function handleMessage(msg: IncomingWSMessage) {
 		switch (msg.type) {
 			case 'room_joined':
+				roomCode = msg.roomCode ?? null;
 				gameState = 'waiting';
+				break;
+			case 'room_not_found':
+				// show error message in landing page
 				break;
 			case 'round_start':
 				gameState = 'playing';
@@ -139,8 +146,12 @@
 		stopCountdown();
 	});
 
-	function handleCreateRoom(): void {
-		joinRoom(roomCodeInput, 'random'); // can be 'custom' test it later
+	function handleCreateRoom(mode: Mode): void {
+		createRoom(mode); // can be 'custom' test it later
+	}
+
+	function handleJoinRoom(): void {
+		joinRoom(roomCodeInput);
 	}
 
 	function handleSubmitWord(): void {
@@ -192,9 +203,9 @@
 </script>
 
 {#if gameState === 'landing'}
-	<Landing {handleCreateRoom} bind:roomCodeInput />
+	<Landing {handleCreateRoom} {handleJoinRoom} bind:roomCodeInput />
 {:else if gameState === 'waiting'}
-	<Waiting {handleLeaveRoom} />
+	<Waiting {roomCode} {handleLeaveRoom} />
 {:else if gameState === 'playing'}
 	<Playing
 		{role}

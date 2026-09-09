@@ -36,12 +36,33 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 		}
 
 		switch msg.Type {
-		case "join_room":
+
+		case "create_room":
 			mode := msg.Mode
 			if mode == "" {
 				mode = "random"
 			}
-			room = getOrCreateRoom(msg.RoomCode, mode)
+
+			room = createRoom(mode)
+
+			room.mu.Lock()
+			player := &Player{Conn: ws, Role: "", Confirmed: false}
+			room.Players = append(room.Players, player)
+			room.mu.Unlock()
+
+			ws.WriteJSON(OutgoingMessage{Type: "room_joined", RoomCode: room.Code})
+
+		case "join_room":
+			roomsMu.Lock()
+			existing, exists := rooms[msg.RoomCode]
+			roomsMu.Unlock()
+
+			if !exists {
+				ws.WriteJSON(OutgoingMessage{Type: "room_not_found"})
+				break
+			}
+
+			room = existing
 
 			room.mu.Lock()
 			player := &Player{Conn: ws, Role: "", Confirmed: false}
@@ -49,7 +70,7 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 			full := len(room.Players) == 2
 			room.mu.Unlock()
 
-			ws.WriteJSON(OutgoingMessage{Type: "room_joined"})
+			ws.WriteJSON(OutgoingMessage{Type: "room_joined", RoomCode: room.Code})
 
 			if full {
 				room.broadcast(OutgoingMessage{Type: "choose_role_phase"})
