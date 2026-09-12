@@ -195,7 +195,8 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 
 		case "guess":
 			if room != nil {
-				room.mu.Lock()
+				currentRoom := room
+				currentRoom.mu.Lock()
 				current := strings.TrimSpace(strings.ToLower(room.Current))
 				guess := strings.TrimSpace(strings.ToLower(msg.Guess))
 				isCorrect := current != "" && current == guess
@@ -204,20 +205,20 @@ func handleWs(w http.ResponseWriter, r *http.Request) {
 				var gen int
 
 				if isCorrect {
-					room.TimerGen++
-					gen = room.TimerGen
-					revealWord = room.Current
+					currentRoom.TimerGen++
+					gen = currentRoom.TimerGen
+					revealWord = currentRoom.Current
 				}
 
-				room.mu.Unlock()
+				currentRoom.mu.Unlock()
 
 				if isCorrect {
-					room.broadcast(OutgoingMessage{Type: "correct_guess", Word: revealWord})
+					currentRoom.broadcast(OutgoingMessage{Type: "correct_guess", Word: revealWord})
 
 					time.AfterFunc(5*time.Second, func() {
-						room.mu.Lock()
-						stillCurrent := room.TimerGen == gen
-						room.mu.Unlock()
+						currentRoom.mu.Lock()
+						stillCurrent := currentRoom.TimerGen == gen
+						currentRoom.mu.Unlock()
 						if stillCurrent {
 							nextWord(room)
 						}
@@ -292,14 +293,6 @@ func startRoundTimer(room *Room) int64 {
 	// because JS native time unit is like in milliseconds??? so we just match that as well
 	return endsAt.UnixMilli()
 }
-
-// TODO: MAybe delete?
-// func handleGuessCorrect(room *Room) {
-// 	room.mu.Lock()
-// 	room.WordIdx++
-// 	room.mu.Unlock()
-// 	room.broadcast(OutgoingMessage{Type: "round_end", Outcome: "correct"})
-// }
 
 func nextWord(room *Room) {
 	room.mu.Lock()

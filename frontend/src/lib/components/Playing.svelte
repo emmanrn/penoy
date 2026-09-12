@@ -13,7 +13,6 @@
 		guessInput: string;
 		guessCorrect: boolean;
 		handleSubmitWord: () => void;
-		handleNextWord: () => void;
 		handleLeaveRoom: () => void;
 		handleChooseWord: (word: string) => void;
 		handleGuess: () => void;
@@ -31,7 +30,6 @@
 		guessInput = $bindable(),
 		guessCorrect,
 		handleSubmitWord,
-		handleNextWord,
 		handleLeaveRoom,
 		handleChooseWord,
 		handleGuess
@@ -118,7 +116,6 @@
 	</div>
 	{#if round_started}
 		<div class="mt-5 flex items-center justify-center space-x-4">
-			<!-- <button class="btn preset-outlined capitalize" onclick={handleNextWord}>Next Word</button> -->
 			<button class="btn preset-filled-error-500 font-semibold" onclick={handleLeaveRoom}
 				>Leave Room</button
 			>

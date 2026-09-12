@@ -40,7 +40,8 @@
 	let guessInput: string = '';
 	let guessCorrect: boolean = false;
 
-	let connected = false;
+	let connected: boolean = false;
+	let roomNotFound: boolean = false;
 
 	function beginCountdown(endsAtMs: number): void {
 		if (timerInterval) clearInterval(timerInterval);
@@ -61,13 +62,16 @@
 		switch (msg.type) {
 			case 'room_joined':
 				roomCode = msg.roomCode ?? null;
+				word = null;
 				gameState = 'waiting';
+				roomNotFound = false;
 				if (roomCode) {
 					window.history.pushState({}, '', `/room/${roomCode}`);
 				}
 				break;
 			case 'room_not_found':
 				// show error message in landing page
+				roomNotFound = true;
 				break;
 			case 'round_start':
 				gameState = 'playing';
@@ -165,10 +169,6 @@
 		customwordInput = '';
 	}
 
-	function handleNextWord(): void {
-		nextWord();
-	}
-
 	function handleGuess(): void {
 		sendGuess(guessInput);
 		guessInput = '';
@@ -179,7 +179,10 @@
 		gameState = 'landing';
 		role = null;
 		word = null;
+		myChosenRole = null;
 		mode = null;
+		roomCodeInput = '';
+		roomNotFound = false;
 		round_started = false;
 		window.history.pushState({}, '', '/');
 	}
@@ -210,7 +213,7 @@
 </script>
 
 {#if gameState === 'landing'}
-	<Landing {handleCreateRoom} {handleJoinRoom} bind:roomCodeInput />
+	<Landing {handleCreateRoom} {handleJoinRoom} bind:roomNotFound bind:roomCodeInput />
 {:else if gameState === 'waiting'}
 	<Waiting {roomCode} {handleLeaveRoom} />
 {:else if gameState === 'playing'}
@@ -226,7 +229,6 @@
 		bind:customwordInput
 		bind:guessInput
 		{handleSubmitWord}
-		{handleNextWord}
 		{handleLeaveRoom}
 		{handleChooseWord}
 		{handleGuess}

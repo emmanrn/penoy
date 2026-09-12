@@ -6,10 +6,22 @@
 		handleCreateRoom: (mode: Mode) => void;
 		handleJoinRoom: () => void;
 		roomCodeInput: string;
+		roomNotFound: boolean;
 	}
-	let { roomCodeInput = $bindable(), handleCreateRoom, handleJoinRoom }: LandingProps = $props();
+	let {
+		roomCodeInput = $bindable(),
+		roomNotFound = $bindable(),
+		handleCreateRoom,
+		handleJoinRoom
+	}: LandingProps = $props();
 
 	let showInput: boolean = $state(false);
+
+	function resetInput(): void {
+		showInput = false;
+		roomNotFound = false;
+		roomCodeInput = '';
+	}
 </script>
 
 <div class="align-center mx-h-md my-auto flex h-full w-full flex-col justify-center space-y-4">
@@ -24,13 +36,8 @@
 				class="btn preset-filled-success-500"
 				onclick={() => handleCreateRoom('random')}>Create Room</button
 			>
-			<button
-				type="button"
-				class="btn preset-filled-success-500"
-				onclick={() => {
-					showInput = true;
-					handleJoinRoom();
-				}}>Join Room</button
+			<button type="button" class="btn preset-filled-success-500" onclick={() => (showInput = true)}
+				>Join Room</button
 			>
 		</div>
 	{:else}
@@ -45,14 +52,15 @@
 					placeholder="Enter room code to join"
 				/>
 			</label>
+			{#if roomNotFound}
+				<p>Room not found</p>
+			{/if}
 			<div class="mx-auto flex items-center justify-center space-x-4">
 				<button type="button" class="btn preset-filled-success-500" onclick={handleJoinRoom}
 					>Join Room</button
 				>
-				<button
-					type="button"
-					class="btn preset-filled-error-500"
-					onclick={() => (showInput = false)}>Cancel</button
+				<button type="button" class="btn preset-filled-error-500" onclick={resetInput}
+					>Cancel</button
 				>
 			</div>
 		</div>

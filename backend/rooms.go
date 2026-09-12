@@ -90,18 +90,6 @@ func (r *Room) broadcast(msg OutgoingMessage) {
 	}
 }
 
-// TODO: DELETE
-// // used to check which roles are currently taken
-// func (r *Room) takenRoles() []string {
-// 	var taken []string
-// 	for _, p := range r.Players {
-// 		if p.Role != "" {
-// 			taken = append(taken, p.Role)
-// 		}
-// 	}
-// 	return taken
-// }
-
 // used to check which roles are taken
 func (r *Room) confirmedRoles() []string {
 	var confirmed []string
@@ -139,6 +127,7 @@ func (r *Room) removePlayer(conn *websocket.Conn) {
 	}
 
 	r.Players = remaining
+	r.TimerGen++ // invalidate any pending timers and cancel it out basically
 
 	if len(r.Players) == 1 {
 		r.Players[0].Role = ""
